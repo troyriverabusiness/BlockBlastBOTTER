@@ -1,3 +1,5 @@
+import Shapes.Shape;
+
 import java.util.LinkedList;
 import java.util.Set;
 
@@ -19,75 +21,79 @@ public class Board {
 
     public void addShapeAtIndex(byte x, byte y, Shape shape) {
         if (!canBeAdded(x, y, shape)) {
-            throw new IllegalArgumentException("Shape cannot be added at this index");
+            throw new IllegalArgumentException("Shape.Shape cannot be added at this index");
         }
         int thisRoundsPoints = 0;
 
         // add the shape to the grid at the index provided.
-        for (byte across = x, shapeX = 0; across < x + shape.width; across++, shapeX++) {
-            for (byte down = y, shapeY = 0; down < y + shape.height; down++, shapeY++) {
+        for (byte across = x, shapeX = 0; across < x + shape.getWidth(); across++, shapeX++) {
+            for (byte down = y, shapeY = 0; down < y + shape.getHeight(); down++, shapeY++) {
                 // the shapes blocks are placed on the grid
-                grid[down][across] += shape.gridRepresentation[shapeY][shapeX];
+                grid[down][across] += shape.getGridRepresentation()[shapeY][shapeX];
             }
         }
         // add assertion that the grid only contains {0,1}
         assert (true);
 
-        thisRoundsPoints += shape.blocks;
+        thisRoundsPoints += shape.getBlocks();
 
         // check if any rows/columns can be destroyed
         LinkedList<Byte> fullRows = getFullRows(y, shape);
         LinkedList<Byte> fullColumns = getFullColumns(x, shape);
 
         // delete the full rows/columns while adding the points
+        int destroyRowColumnPoints = 0;
         if (!fullRows.isEmpty()) {
             for (Byte row : fullRows) {
                 destroyRow(row);
-                thisRoundsPoints += 10;     // add the points from completing a row
+                destroyRowColumnPoints += 10;     // add the points from completing a row
             }
         }
         if (!fullColumns.isEmpty()) {
             for (Byte column : fullColumns) {
                 destroyColumn(column);
-                thisRoundsPoints += 10;     // add the points from completing a column
+                destroyRowColumnPoints += 10;     // add the points from completing a column
             }
         }
+        thisRoundsPoints += destroyRowColumnPoints;
 
-
+        // Calculate the combo points
+        int comboPoints = combo * destroyRowColumnPoints;
+        thisRoundsPoints += comboPoints;
 
         // add points
+        points += thisRoundsPoints;
     }
 
     // checks if a shape can fit in given index without overlapping others.
     public boolean canBeAdded(byte x, byte y, Shape shape) {
         // for a rectangle, it checks simply if the allocated space is free (== 0)
-        if (shape instanceof Rectangle) {
-            for (byte across = x; across < x + shape.width; across++) {
-                for (byte down = y; down < y + shape.height; down++) {
+        if (shape instanceof Shapes.Rectangle) {
+            for (byte across = x; across < x + shape.getWidth(); across++) {
+                for (byte down = y; down < y + shape.getHeight(); down++) {
                     if (grid[down][across] == 1) return false;
                 }
             }
-            return true;
         } else {
             // else it places the shape directly onto the grid and checks if any overlapping
             byte[][] gridCopy = this.grid;
-            for (byte across = x, shapeX = 0; across < x + shape.width; across++, shapeX++) {
-                for (byte down = y, shapeY = 0; down < y + shape.height; down++, shapeY++) {
+            for (byte across = x, shapeX = 0; across < x + shape.getWidth(); across++, shapeX++) {
+                for (byte down = y, shapeY = 0; down < y + shape.getHeight(); down++, shapeY++) {
                     // the shapes blocks are placed on the grid copy
-                    grid[down][across] += shape.gridRepresentation[shapeY][shapeX];
+                    grid[down][across] += shape.getGridRepresentation()[shapeY][shapeX];
                     // if any overlap then the shape cannot fit
                     if (grid[down][across] > 1) return false;
                 }
             }
-            return true;
         }
+        return true;
     }
 
 
     // gets the rows in the grid that are full starting from y-index "y"
     private LinkedList<Byte> getFullRows(byte y, Shape shape) {
         LinkedList<Byte> rows = new LinkedList<>();
-        for (byte downIndex = y; downIndex < y + shape.height; downIndex++) {
+        for (byte downIndex = y; downIndex < y + shape.getHeight(); downIndex++) {
             byte counter = 0;
             for (byte across = 0; across < grid.length; across++) {
                 if (grid[downIndex][across] == 1) counter++;
@@ -101,7 +107,7 @@ public class Board {
     private LinkedList<Byte> getFullColumns(byte x, Shape shape) {
         LinkedList<Byte> cols = new LinkedList<>();
         // Checks for full COLUMNS
-        for (byte acrossIndex = x; acrossIndex < x + shape.width; acrossIndex++) {
+        for (byte acrossIndex = x; acrossIndex < x + shape.getWidth(); acrossIndex++) {
             // iterates horizontally over the columns where the shape has been placed, instead of the full grid
             byte counter = 0;
             for (byte down = 0; down < grid.length; down++) {
@@ -112,7 +118,6 @@ public class Board {
         }
         return cols;
     }
-
 
     public void destroyColumn(int x) {
         // destroys a column like in the game

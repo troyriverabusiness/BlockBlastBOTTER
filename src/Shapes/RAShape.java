@@ -1,19 +1,19 @@
-public class RAShape extends Shape {
-    // RA-Shape := Right-Angle Shape
-    public Angle angle;
+package Shapes;
 
-    public RAShape(byte height, byte width, Angle angle) {
-        this.height = height;
-        this.width = width;
-        this.angle = angle;
+public class RAShape extends Shape {
+
+    public RAShape(int height, int width, Angle angle) {
+        if (height <= 1 || width <= 1) {
+            throw new IllegalArgumentException("This shape is not a RA-Shape.Shape. Height and width must be greater than 1");
+        }
+        this.height = (byte) height;
+        this.width = (byte) width;
+        // RA-Shape.Shape := Right-Shape.Angle Shape.Shape
         this.blocks = (byte) (height + width - 1);
-        this.gridRepresentation = initialiseBlocks(height, width, angle);
+        this.gridRepresentation = initialiseBlocks(this.height, this.width, angle);
     }
 
     private byte[][] initialiseBlocks(byte height, byte width, Angle angle) {
-        if (height <= 1 || width <= 1) {
-            throw new IllegalArgumentException("This shape is not a RA-Shape. Height and width must be greater than 1");
-        }
         byte[][] blocks = new byte[height][width];
         switch (angle){
             case TL -> {

@@ -1,10 +1,12 @@
+package Shapes;
+
 public class Rectangle extends Shape {
 
-    public Rectangle(byte height, byte width) {
-        this.height = height;
-        this.width = width;
+    public Rectangle(int height, int width) {
+        this.height = (byte) height;
+        this.width = (byte) width;
         this.blocks = (byte) (height * width);
-        this.gridRepresentation = initialiseBlocks(height, width);
+        this.gridRepresentation = initialiseBlocks(this.height, this.width);
     }
 
     private byte[][] initialiseBlocks(byte height, byte width) {
